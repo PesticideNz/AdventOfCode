@@ -1,0 +1,69 @@
+void Main()
+{
+	string[] input = File.ReadAllLines(@"D:\Input.txt");
+	string template = input[0];
+	Dictionary<string, char> d = new Dictionary<string, char>();
+	Dictionary<char, int> count = new Dictionary<char, int>();
+	for(int i = 2; i < input.Length; i++)
+	{
+		string[] rules = input[i].Split(" -> ");
+		d.Add(rules[0], Convert.ToChar(rules[1]));
+	}
+	
+	for(int j = 0; j < 10; j++)
+	{
+		(template,count) = RunProcess(template, d);
+	}
+	Console.WriteLine(count.Values.Max() - count.Values.Min());
+}
+
+(string,Dictionary<char, int>) RunProcess(string template, Dictionary<string, char> d)
+{
+	Dictionary<char, int> count = new Dictionary<char, int>();
+	StringBuilder sb = new StringBuilder();
+	for(int j = 0; j < template.Length - 1; j++)
+	{
+		string key = template.Substring(j, 2);
+		char second = template[j+1];
+		char value = d[key];
+		if(d.Keys.Contains(key))
+		{
+			if(j==0)
+			{
+				sb.Append(template[j]);
+				count = AddToCount(count, template[j]);
+			}
+			sb.Append(value);
+			sb.Append(second);
+			count = AddToCount(count, value);
+			count = AddToCount(count, second);
+		}
+		else
+		{
+			if(j==0)
+			{
+				sb.Append(key);
+				count = AddToCount(count, template[j]);
+			}
+			else
+			{
+				sb.Append(second);
+			}
+			count = AddToCount(count, second);
+		}
+	}
+	return (sb.ToString(), count);
+}
+
+Dictionary<char, int> AddToCount(Dictionary<char, int> d, char c)
+{
+	if(d.Keys.Contains(c))
+	{
+		d[c]++;
+	}
+	else
+	{
+		d.Add(c, 1);
+	}
+	return d;
+}
