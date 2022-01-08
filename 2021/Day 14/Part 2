@@ -1,0 +1,72 @@
+void Main()
+{
+	string[] input = File.ReadAllLines(@"D:\Input.txt");
+	string template = input[0];
+	Dictionary<string, char> d = new Dictionary<string, char>();
+	Dictionary<string, long> count = new Dictionary<string, long>();
+	for(int i = 2; i < input.Length; i++)
+	{
+		string[] rules = input[i].Split(" -> ");
+		d.Add(rules[0], Convert.ToChar(rules[1]));
+	}
+	
+	for(int l = 0; l < template.Length - 1; l++)
+	{
+		count = AddToCount(count, template.Substring(l, 2), 1);
+	}
+
+	for(int j = 0; j < 40; j++)
+	{
+		count = RunProcess(d, count);
+	}
+
+	Dictionary<string, long> result = new Dictionary<string, long>();
+	for(int m = 0; m < count.Count(); m++)
+	{
+		string key = count.ElementAt(m).Key;
+		long value = count.ElementAt(m).Value;
+		result = AddToCount(result, key[0].ToString(), value);
+		result = AddToCount(result, key[1].ToString(), value);
+	}
+	result[template[0].ToString()]++;
+	result[template[template.Length-1].ToString()]++;
+	Console.WriteLine((result.Values.Max() - result.Values.Min())/2);
+}
+
+Dictionary<string, long> RunProcess(Dictionary<string, char> d, Dictionary<string, long> count)
+{
+    Dictionary<string, long> temp = new Dictionary<string, long>();
+    for (int k = 0; k < count.Count(); k++)
+    {
+        string key = count.ElementAt(k).Key;
+        long value = count.ElementAt(k).Value;
+        if (d.Keys.Contains(key))
+        {
+            char middle = d[key];
+            string a = key[0].ToString() + middle;
+            string b = middle + key[1].ToString();
+            temp = AddToCount(temp, a, value);
+            temp = AddToCount(temp, b, value);
+        }
+        else
+        {
+            temp = AddToCount(temp, key, value);
+        }
+    }
+
+    return temp;
+}
+
+
+Dictionary<string, long> AddToCount(Dictionary<string, long> count, string s, long value)
+{
+    if (count.Keys.Contains(s))
+    {
+        count[s] += value;
+    }
+    else
+    {
+        count.Add(s, value);
+    }
+    return count;
+}
